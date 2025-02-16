@@ -51,14 +51,25 @@ def assign_severity_labels(scores):
     return np.array(labels)
 
 # ---------------- FEATURE EXTRACTION ---------------- #
-def extract_features(images):
-    base_model = ResNet18(weights="imagenet", include_top=False, input_shape=(256, 256, 3))
-    model = Model(inputs=base_model.input, outputs=base_model.get_layer("avg_pool").output)
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from hho import HarrisHawksOptimization  # Assuming you have an HHO implementation
+
+def hho_feature_selection(features, num_selected=446):
+    scaler = StandardScaler()
+    features_scaled = scaler.fit_transform(features)
     
-    images = np.expand_dims(images, axis=-1)
-    features = model.predict(images)
-    features = features.reshape(features.shape[0], -1)  # Flatten
-    return features
+    def fitness_function(selected_features):
+        # Define a fitness function based on classification accuracy or variance explained
+        return -np.var(selected_features)  # Example: Maximizing variance
+    
+    hho = HarrisHawksOptimization(fitness_function, dim=features.shape[1], num_agents=30, max_iter=100)
+    best_solution = hho.run()
+    
+    selected_indices = np.argsort(best_solution)[:num_selected]
+    selected_features = features_scaled[:, selected_indices]
+    
+    return selected_features
 
 # ---------------- FEATURE SELECTION (HHO) ---------------- #
 def hho_feature_selection(features, num_selected=446):
