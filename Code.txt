@@ -72,12 +72,23 @@ def hho_feature_selection(features, num_selected=446):
     return selected_features
 
 # ---------------- FEATURE SELECTION (HHO) ---------------- #
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from hho import HarrisHawksOptimization  # Assuming you have an HHO implementation
+
 def hho_feature_selection(features, num_selected=446):
     scaler = StandardScaler()
     features_scaled = scaler.fit_transform(features)
     
-    pca = PCA(n_components=num_selected)
-    selected_features = pca.fit_transform(features_scaled)
+    def fitness_function(selected_features):
+        # Define a fitness function based on classification accuracy or variance explained
+        return -np.var(selected_features)  # Example: Maximizing variance
+    
+    hho = HarrisHawksOptimization(fitness_function, dim=features.shape[1], num_agents=30, max_iter=100)
+    best_solution = hho.run()
+    
+    selected_indices = np.argsort(best_solution)[:num_selected]
+    selected_features = features_scaled[:, selected_indices]
     
     return selected_features
 
