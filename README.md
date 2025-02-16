@@ -65,8 +65,8 @@ def assign_severity_labels(scores):
 
 # Load and process the CT images
 axial_imgs, coronal_imgs, sagittal_imgs = preprocess_ct_images(CT_IMAGE_PATH)
-# Compute volumetric scores
 
+# Compute volumetric scores
 axial_scores = compute_volumetric_scores(axial_imgs)
 coronal_scores = compute_volumetric_scores(coronal_imgs)
 sagittal_scores = compute_volumetric_scores(sagittal_imgs)
@@ -80,7 +80,9 @@ sagittal_labels = assign_severity_labels(sagittal_scores)
 print("Axial Labels:", axial_labels)
 print("Coronal Labels:", coronal_labels)
 print("Sagittal Labels:", sagittal_labels)
+
 # Classification Model
+
 # Path of Dataset
 image_path = "/path/to/ct_slices"
 axial_images, coronal_images, sagittal_images = preprocess_ct_images(image_path)
@@ -90,13 +92,6 @@ scores = compute_volumetric_scores(axial_images)
 labels = assign_severity_labels(scores)
 
 # Extract features using ResNet-18
-features = extract_features(axial_images)
-
-# Select features using HHO
-selected_features = hho_feature_selection(features)
-
-# Train classifier
-classifier = classify_features(selected_features, labels)
 def extract_features(images):
     base_model = ResNet18(weights="imagenet", include_top=False, input_shape=(256, 256, 3))
     model = Model(inputs=base_model.input, outputs=base_model.get_layer("avg_pool").output)
@@ -105,7 +100,17 @@ def extract_features(images):
     features = model.predict(images)
     features = features.reshape(features.shape[0], -1)  # Flatten
     return features
-    import numpy as np
+
+# Train classifier
+image_path = "/path/to/ct_slices"
+axial_images, coronal_images, sagittal_images = preprocess_ct_images(image_path)
+
+# Compute severity scores
+scores = compute_volumetric_scores(axial_images)
+labels = assign_severity_labels(scores)
+
+# Select features using HHO
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 from hho import HarrisHawksOptimization  # Assuming you have an HHO implementation
 
@@ -124,10 +129,8 @@ def hho_feature_selection(features, num_selected=446):
     selected_features = features_scaled[:, selected_indices]
     
     return selected_features
-    def classify_features(features, labels):
-    clf = GaussianNB()
-    clf.fit(features, labels)
-    return clf
+# Train classifier
+classifier = classify_features(selected_features, labels)
     # Segmentation Model
     def build_unet(input_shape=(256, 256, 1), filters=16, dropout_rate=0.05):
     inputs = Input(input_shape)
