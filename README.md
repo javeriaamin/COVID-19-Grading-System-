@@ -113,75 +113,92 @@ def hho_feature_selection(features, num_selected=446):
 classifier = classify_features(selected_features, labels)
 
 # Proposed Unet Segmentation Model
-    def build_unet(input_shape=(256, 256, 1), filters=16, dropout_rate=0.05):
-    inputs = Input(input_shape)
-    c1 = Conv2D(filters, (3, 3), activation=None, padding="same")(inputs)
-    c1 = BatchNormalization()(c1)
-    c1 = ReLU()(c1)
-    c1 = Dropout(dropout_rate)(c1)
-    c1 = Conv2D(filters, (3, 3), activation=None, padding="same")(c1)
-    c1 = BatchNormalization()(c1)
-    c1 = ReLU()(c1)
-    p1 = MaxPooling2D((2, 2))(c1)
-    c2 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(p1)
-    c2 = BatchNormalization()(c2)
-    c2 = ReLU()(c2)
-    c2 = Dropout(dropout_rate)(c2)
-    c2 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(c2)
-    c2 = BatchNormalization()(c2)
-    c2 = ReLU()(c2)
-    p2 = MaxPooling2D((2, 2))(c2)
-    c3 = Conv2D(filters * 4, (3, 3), activation=None, padding="same")(p2)
-    c3 = BatchNormalization()(c3)
-    c3 = ReLU()(c3)
-    c3 = Dropout(dropout_rate)(c3)
-    c3 = Conv2D(filters * 4, (3, 3), activation=None, padding="same")(c3)
-    c3 = BatchNormalization()(c3)
-    c3 = ReLU()(c3)
-    u4 = Conv2DTranspose(filters * 2, (2, 2), strides=(2, 2), padding="same")(c3)
-    u4 = concatenate([u4, c2])
-    c4 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(u4)
-    c4 = BatchNormalization()(c4)
-    c4 = ReLU()(c4)
-    c4 = Dropout(dropout_rate)(c4)
-    c4 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(c4)
-    c4 = BatchNormalization()(c4)
-    c4 = ReLU()(c4)
+  import os
+import numpy as np
+import cv2
+import tensorflow as tf
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras import backend as K
 
-    u5 = Conv2DTranspose(filters, (2, 2), strides=(2, 2), padding="same")(c4)
-    u5 = concatenate([u5, c1])
-    c5 = Conv2D(filters, (3, 3), activation=None, padding="same")(u5)
-    c5 = BatchNormalization()(c5)
-    c5 = ReLU()(c5)
-    c5 = Dropout(dropout_rate)(c5)
-    c5 = Conv2D(filters, (3, 3), activation=None, padding="same")(c5)
-    c5 = BatchNormalization()(c5)
-    c5 = ReLU()(c5)
+# Insert the path of the segmentation dataset
+image_path = "/path/to/images"  # Change this to the actual path
+mask_path = "/path/to/masks"    # Change this to the actual path
 
-    outputs = Conv2D(1, (1, 1), activation="sigmoid")(c5)
+# Function to compute Dice coefficient
+def dice_coefficient(y_true, y_pred, smooth=1e-6):
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
 
-    model = Model(inputs, outputs)
+# Function to preprocess images and masks
+def preprocess_ct_images(image_path, mask_path, img_size=(256, 256)):
+    images, masks = [], []
+
+    for img_name in os.listdir(image_path):
+        img = cv2.imread(os.path.join(image_path, img_name), cv2.IMREAD_GRAYSCALE)
+        img = cv2.resize(img, img_size) / 255.0  # Normalize
+        images.append(img)
+
+        mask = cv2.imread(os.path.join(mask_path, img_name), cv2.IMREAD_GRAYSCALE)
+        mask = cv2.resize(mask, img_size) / 255.0  # Normalize
+        masks.append(mask)
+
+    return np.array(images).reshape(-1, img_size[0], img_size[1], 1), np.array(masks).reshape(-1, img_size[0], img_size[1], 1)
+
+# Function to build a simple U-Net model
+def build_unet(input_shape=(256, 256, 1)):
+    inputs = tf.keras.layers.Input(input_shape)
+    
+    conv1 = tf.keras.layers.Conv2D(16, (3, 3), activation='relu', padding='same')(inputs)
+    conv1 = tf.keras.layers.Conv2D(16, (3, 3), activation='relu', padding='same')(conv1)
+    pool1 = tf.keras.layers.MaxPooling2D((2, 2))(conv1)
+
+    conv2 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(pool1)
+    conv2 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(conv2)
+    pool2 = tf.keras.layers.MaxPooling2D((2, 2))(conv2)
+
+    conv3 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same')(pool2)
+    conv3 = tf.keras.layers.Conv2D(64, (3, 3), activation='relu', padding='same')(conv3)
+
+    up1 = tf.keras.layers.Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv3)
+    concat1 = tf.keras.layers.Concatenate()([up1, conv2])
+    conv4 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(concat1)
+    conv4 = tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='same')(conv4)
+
+    up2 = tf.keras.layers.Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')(conv4)
+    concat2 = tf.keras.layers.Concatenate()([up2, conv1])
+    conv5 = tf.keras.layers.Conv2D(16, (3, 3), activation='relu', padding='same')(concat2)
+    conv5 = tf.keras.layers.Conv2D(16, (3, 3), activation='relu', padding='same')(conv5)
+
+    outputs = tf.keras.layers.Conv2D(1, (1, 1), activation='sigmoid')(conv5)
+
+    model = tf.keras.Model(inputs, outputs)
     return model
 
-# ---------------- TRAINING SEGMENTATION MODEL ---------------- #
-#Instert the Path of Segmentation Dataset
-mask_path = "/path/to/masks"
-segmentation_model = train_segmentation_model(image_path, mask_path)
-
+# Function to train the segmentation model
 def train_segmentation_model(image_path, mask_path):
-    images, masks = preprocess_ct_images(image_path)
+    images, masks = preprocess_ct_images(image_path, mask_path)
 
     train_datagen = ImageDataGenerator(rotation_range=10, zoom_range=0.1, horizontal_flip=True)
     val_datagen = ImageDataGenerator()
 
     unet_model = build_unet()
-    unet_model.compile(optimizer=Adam(learning_rate=0.001), loss=BinaryCrossentropy(), metrics=["accuracy"])
+    unet_model.compile(optimizer=Adam(learning_rate=0.001), loss=BinaryCrossentropy(), metrics=[dice_coefficient])
 
     history = unet_model.fit(
         train_datagen.flow(images, masks, batch_size=8),
         validation_data=val_datagen.flow(images, masks, batch_size=8),
         epochs=100
     )
+
+    return unet_model, history
+
+# Train the segmentation model
+segmentation_model, training_history = train_segmentation_model(image_path, mask_path)
+
 
     unet_model.save("unet_ct_segmentation.h5")
     return unet_model
