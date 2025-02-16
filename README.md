@@ -112,8 +112,11 @@ def hho_feature_selection(features, num_selected=446):
 # Train classifier
 classifier = classify_features(selected_features, labels)
 
-# Proposed Unet Segmentation Model
-  import os
+
+
+
+# Insert the path of the segmentation dataset
+import os
 import numpy as np
 import cv2
 import tensorflow as tf
@@ -121,8 +124,6 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import backend as K
-
-# Insert the path of the segmentation dataset
 image_path = "/path/to/images"  # Change this to the actual path
 mask_path = "/path/to/masks"    # Change this to the actual path
 
@@ -196,7 +197,7 @@ def train_segmentation_model(image_path, mask_path):
 
     return unet_model, history
 
-# Train the segmentation model
+# Train and Save segmentation model
 segmentation_model, training_history = train_segmentation_model(image_path, mask_path)
 
 
