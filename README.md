@@ -1,8 +1,8 @@
 # COVID-19-Grading-System-
 # First Step Install Libraries
-import numpy as np
-import os
-import cv2
+1. import numpy as np
+2. import os
+3. import cv2
 import tensorflow as tf
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Conv2DTranspose, concatenate, BatchNormalization, ReLU, Input, Dense, Flatten
