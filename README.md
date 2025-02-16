@@ -15,3 +15,7 @@ The graded slices are input to the proposed classification model, and N×1000 fe
 	The third contribution is that classified images are passed as input to the proposed U-net model containing selected 47 layers and trained from scratch on the optimal hyperparameters, such as the Adam optimizer, binary cross-entropy loss, 16 filter size, and 0.005 drop-out layers, to segment the infected region more accurately.
 ![image](https://github.com/user-attachments/assets/1bfd1566-1ec7-4030-a3d9-1b7ebabf02ad)
 
+Benchmark Datasets
+UCSD-AI4H is a public classification dataset and contains 812 pictures of 216 patients [42]. The segmentation dataset contains 100 slices of 100 patients with ground annotation masks [43]. 
+[42]	X. Yang, X. He, J. Zhao, Y. Zhang, S. Zhang, and P. Xie, "COVID-CT-dataset: a CT scan dataset about COVID-19," arXiv preprint arXiv:2003.13865, 2020.
+[43]	"http://medicalsegmentation.com/covid19/ accessed by 23/12/2022."
