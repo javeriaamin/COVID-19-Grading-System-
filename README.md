@@ -3,21 +3,21 @@
 1. import numpy as np
 2. import os
 3. import cv2
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Conv2DTranspose, concatenate, BatchNormalization, ReLU, Input, Dense, Flatten
-from tensorflow.keras.applications import ResNet18
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import BinaryCrossentropy
-from sklearn.decomposition import PCA
-from sklearn.naive_bayes import GaussianNB
-from sklearn.preprocessing import StandardScaler
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from scipy.stats import entropy
+4. import tensorflow as tf
+5. from tensorflow.keras.models import Model
+6. from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Conv2DTranspose, concatenate, BatchNormalization, ReLU, Input, Dense, Flatten
+7. from tensorflow.keras.applications import ResNet18
+8. from tensorflow.keras.optimizers import Adam
+9. from tensorflow.keras.losses import BinaryCrossentropy
+10. from sklearn.decomposition import PCA
+11. from sklearn.naive_bayes import GaussianNB
+12. from sklearn.preprocessing import StandardScaler
+13. from tensorflow.keras.preprocessing.image import ImageDataGenerator
+14. from scipy.stats import entropy
 # Volumetric Analysis
-import os
-import cv2
-import numpy as np
+1. import os
+2. import cv2
+3. import numpy as np
 
 # Define the path where CT images are stored
 CT_IMAGE_PATH = "/path/to/ct_images"  # Change this to the actual path of your dataset
