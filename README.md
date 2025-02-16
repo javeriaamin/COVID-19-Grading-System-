@@ -21,7 +21,6 @@
 
 # Define the path where CT images are stored
 CT_IMAGE_PATH = "/path/to/ct_images"  # Change this to the actual path of your dataset
-
 def preprocess_ct_images(ct_path, img_size=(256, 256)):
     axial_images = []
     coronal_images = []
