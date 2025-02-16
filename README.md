@@ -65,8 +65,8 @@ def assign_severity_labels(scores):
 
 # Load and process the CT images
 axial_imgs, coronal_imgs, sagittal_imgs = preprocess_ct_images(CT_IMAGE_PATH)
-
 # Compute volumetric scores
+
 axial_scores = compute_volumetric_scores(axial_imgs)
 coronal_scores = compute_volumetric_scores(coronal_imgs)
 sagittal_scores = compute_volumetric_scores(sagittal_imgs)
