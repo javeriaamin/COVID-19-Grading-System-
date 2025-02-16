@@ -1,5 +1,5 @@
 # COVID-19-Grading-System-
-# First Step Install Libraries
+Step 1 # First Step Install Libraries
 1. import numpy as np
 2. import os
 3. import cv2
@@ -14,7 +14,8 @@
 12. from sklearn.preprocessing import StandardScaler
 13. from tensorflow.keras.preprocessing.image import ImageDataGenerator
 14. from scipy.stats import entropy
-# Volumetric Analysis
+
+Step 2 # Volumetric Analysis
 1. import os
 2. import cv2
 3. import numpy as np
@@ -63,33 +64,20 @@ def assign_severity_labels(scores):
             labels.append("Moderate")
     return np.array(labels)
 
-# Load and process the CT images
 axial_imgs, coronal_imgs, sagittal_imgs = preprocess_ct_images(CT_IMAGE_PATH)
-
-# Compute volumetric scores
 axial_scores = compute_volumetric_scores(axial_imgs)
 coronal_scores = compute_volumetric_scores(coronal_imgs)
 sagittal_scores = compute_volumetric_scores(sagittal_imgs)
-
-# Assign severity labels
 axial_labels = assign_severity_labels(axial_scores)
 coronal_labels = assign_severity_labels(coronal_scores)
 sagittal_labels = assign_severity_labels(sagittal_scores)
-
-# Print results
 print("Axial Labels:", axial_labels)
 print("Coronal Labels:", coronal_labels)
 print("Sagittal Labels:", sagittal_labels)
 
 # Classification Model
-
 # Path of Dataset
 image_path = "/path/to/ct_slices"
-axial_images, coronal_images, sagittal_images = preprocess_ct_images(image_path)
-
-# Compute severity scores
-scores = compute_volumetric_scores(axial_images)
-labels = assign_severity_labels(scores)
 
 # Extract features using ResNet-18
 def extract_features(images):
@@ -100,14 +88,6 @@ def extract_features(images):
     features = model.predict(images)
     features = features.reshape(features.shape[0], -1)  # Flatten
     return features
-
-# Train classifier
-image_path = "/path/to/ct_slices"
-axial_images, coronal_images, sagittal_images = preprocess_ct_images(image_path)
-
-# Compute severity scores
-scores = compute_volumetric_scores(axial_images)
-labels = assign_severity_labels(scores)
 
 # Select features using HHO
 import numpy as np
@@ -131,11 +111,10 @@ def hho_feature_selection(features, num_selected=446):
     return selected_features
 # Train classifier
 classifier = classify_features(selected_features, labels)
-    # Segmentation Model
+
+# Proposed Unet Segmentation Model
     def build_unet(input_shape=(256, 256, 1), filters=16, dropout_rate=0.05):
     inputs = Input(input_shape)
-
-    # Encoder
     c1 = Conv2D(filters, (3, 3), activation=None, padding="same")(inputs)
     c1 = BatchNormalization()(c1)
     c1 = ReLU()(c1)
@@ -144,7 +123,6 @@ classifier = classify_features(selected_features, labels)
     c1 = BatchNormalization()(c1)
     c1 = ReLU()(c1)
     p1 = MaxPooling2D((2, 2))(c1)
-
     c2 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(p1)
     c2 = BatchNormalization()(c2)
     c2 = ReLU()(c2)
@@ -153,8 +131,6 @@ classifier = classify_features(selected_features, labels)
     c2 = BatchNormalization()(c2)
     c2 = ReLU()(c2)
     p2 = MaxPooling2D((2, 2))(c2)
-
-    # Bottleneck
     c3 = Conv2D(filters * 4, (3, 3), activation=None, padding="same")(p2)
     c3 = BatchNormalization()(c3)
     c3 = ReLU()(c3)
@@ -162,8 +138,6 @@ classifier = classify_features(selected_features, labels)
     c3 = Conv2D(filters * 4, (3, 3), activation=None, padding="same")(c3)
     c3 = BatchNormalization()(c3)
     c3 = ReLU()(c3)
-
-    # Decoder
     u4 = Conv2DTranspose(filters * 2, (2, 2), strides=(2, 2), padding="same")(c3)
     u4 = concatenate([u4, c2])
     c4 = Conv2D(filters * 2, (3, 3), activation=None, padding="same")(u4)
@@ -212,6 +186,7 @@ def train_segmentation_model(image_path, mask_path):
     unet_model.save("unet_ct_segmentation.h5")
     return unet_model
 
+#Description 
 
 Validation of COVID-19 Grading System based on Harris Hawks Optimization (HHO) and Variational Quantum Classifier using JLDS-2024
 A method is proposed for classifying and segmenting COVID-19 lesions. First, preprocessing is performed on axial, coronial, and sagittal views of CT slices using statistical methods based on volumetric analysis to compute the scores. These are used to assign the grades based on the severity level of each lung lobe such as mild, moderate, and healthy. 
