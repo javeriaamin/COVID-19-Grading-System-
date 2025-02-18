@@ -1,4 +1,5 @@
-# COVID-19-Grading-System-
+# COVID-19-Grading-System-[DEMO] https://huggingface.co/Drjaveria/CovidModel/tree/main
+
 Step 1 # First Step Install Libraries
 1. import numpy as np
 2. import os
